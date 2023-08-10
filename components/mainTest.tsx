@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { Button, Text, View, TextInput, NativeSyntheticEvent, TextInputChangeEventData, ScrollView } from 'react-native';
 import DropDownPicker, { ValueType } from 'react-native-dropdown-picker';
-import { ChildDivProps, DropDownItem, Rectangle, cmToPixels } from './utils';
+import { ChildDivProps, DropDownItem, Rectangle } from './utils';
 import { skyline } from './Algorithms/Skyline';
 import { bestFitDecreasing, bottomLeftBinPacking, firstFitDecreasing, guillotineCut, nextFit, rectangleMerge } from './Algorithms/Algorithms';
 import { ParentDiv } from './ParentDiv';
@@ -94,8 +94,8 @@ export default function MainTest() {
   const onCalculate = useCallback(() => {
     const newWindowSheet: Rectangle[] = rows.map((row) => ({
       id: row.id,
-      width: cmToPixels(row.width),
-      height: cmToPixels(row.height),
+      width: row.width,
+      height: row.height,
       top: 0,
       left: 0,
     }));
@@ -105,45 +105,45 @@ export default function MainTest() {
     switch (selectedValue) {
       case 'Skyline':
         packedRectangles = skyline(newWindowSheet, {
-          width: cmToPixels(parseInt(sheetWidth)),
-          height: cmToPixels(parseInt(sheetHeight)),
+          width: parseInt(sheetWidth),
+          height: parseInt(sheetHeight),
         });
 
         break;
       case 'GuillotineCut':
         packedRectangles = guillotineCut(newWindowSheet, {
-          width: cmToPixels(parseInt(sheetWidth)),
-          height: cmToPixels(parseInt(sheetHeight)),
+          width: parseInt(sheetWidth),
+          height: parseInt(sheetHeight),
         });
         break;
       case 'BestFitDecreasing':
         packedRectangles = bestFitDecreasing(newWindowSheet, {
-          width: cmToPixels(parseInt(sheetWidth)),
-          height: cmToPixels(parseInt(sheetHeight)),
+          width: parseInt(sheetWidth),
+          height: parseInt(sheetHeight),
         });
         break;
       case 'FirstFitDecreasing':
         packedRectangles = firstFitDecreasing(newWindowSheet, {
-          width: cmToPixels(parseInt(sheetWidth)),
-          height: cmToPixels(parseInt(sheetHeight)),
+          width: parseInt(sheetWidth),
+          height: parseInt(sheetHeight),
         });
         break;
       case 'NextFit':
         packedRectangles = nextFit(newWindowSheet, {
-          width: cmToPixels(parseInt(sheetWidth)),
-          height: cmToPixels(parseInt(sheetHeight)),
+          width: parseInt(sheetWidth),
+          height: parseInt(sheetHeight),
         });
         break;
       case 'BottomLeftBinPacking':
         packedRectangles = bottomLeftBinPacking(newWindowSheet, {
-          width: cmToPixels(parseInt(sheetWidth)),
-          height: cmToPixels(parseInt(sheetHeight)),
+          width: parseInt(sheetWidth),
+          height: parseInt(sheetHeight),
         });
         break;
       case 'RectangleMerge':
         packedRectangles = rectangleMerge(newWindowSheet, {
-          width: cmToPixels(parseInt(sheetWidth)),
-          height: cmToPixels(parseInt(sheetHeight)),
+          width: parseInt(sheetWidth),
+          height: parseInt(sheetHeight),
         });
         break;
       default:
@@ -158,7 +158,8 @@ export default function MainTest() {
     id: number,
     field: 'width' | 'height'
   ) => {
-    const { text: value } = event.nativeEvent;
+    const { text } = event.nativeEvent;
+    const value = (isNaN(parseInt(text, 10))) ? null : parseInt(text, 10);
     setRows((prevRows) => prevRows.map((row) => (row.id === id ? { ...row, [field]: value } : row)));
   };
 
@@ -177,12 +178,12 @@ export default function MainTest() {
   }, [rowCount, isAutoFilled, manuallyUpdated]);
 
   return (
-    <ScrollView style={{ margin: 20, borderColor: 'red', borderWidth: 1, height: '100%' }}>
+    <View style={{ margin: 20, borderColor: 'red', borderWidth: 1, width:'100%', height: '100%', flex: 1 }}>
       <View
         style={{
-          flex: 1,
+          // flex: 1,
           width: '100%',
-          height: '100%',
+          // height: '100%',
           alignItems: 'flex-start',
           justifyContent: 'space-between',
           marginBottom: 10,
@@ -191,7 +192,7 @@ export default function MainTest() {
           flexDirection: 'column',
         }}
       >
-        <View style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', flex: 1, borderWidth: 1, borderColor: 'black'}}>
+        <View style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', borderWidth: 1, borderColor: 'black'}}>
           <Text style={{ paddingRight: 5}}>Window Amounts: </Text>
           <TextInput keyboardType="number-pad" value={rowCount} onChange={handleRowCountChange} placeholder="Number of windows" />
         </View>
@@ -218,20 +219,22 @@ export default function MainTest() {
         <Button title="Re-run" onPress={onCalculate} />
       </View>
 
-      <View style={{ display: 'flex', justifyContent: 'flex-start', height: '100%' }}>
-        <View id="rows" style={{ width: 200 }}>
+      <View style={{ flex: 2, justifyContent: 'center',  width: '100%', height:'100%', borderWidth: 2, borderColor: 'blue', padding: 2 }}>
+        <View id="rows" style={{ flex: 1, height:'100%' }}>
           {rows.map((row) => (
             <View key={`rows-${row.id}`} style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', gap: 14, borderWidth: 1, borderColor: 'black' }}>
               <Text>{row.id}</Text>
+              <Text>Width</Text>
               <TextInput 
                 keyboardType="number-pad"
-                value={row.width.toString()}
+                value={row.width?.toString()}
                 onChange={(e) => handleRowInputChange(e, row.id, 'width')}
                 placeholder="Enter width"
               />
+              <Text>Height</Text>
               <TextInput 
                 keyboardType="number-pad"
-                value={row.height.toString()}
+                value={row.height?.toString()}
                 onChange={(e) => handleRowInputChange(e, row.id, 'height')}
                 placeholder="Enter height"
               />
@@ -239,13 +242,22 @@ export default function MainTest() {
           ))}
         </View>
 
-        <View style={{ display: 'flex', justifyContent: 'center', flex: 1, width: '100%', padding: 5, height: '100%' }}>
+        <View style={{
+          // display: 'flex',
+          // justifyContent: 'center',
+          flex: 1,
+          width: '100%',
+          height: '100%',
+          padding: 5,
+          borderWidth: 2,
+          borderColor: 'yellow',
+        }}>
           <ParentDiv
-            sheet={{ width: cmToPixels(parseInt(sheetWidth)), height: cmToPixels(parseInt(sheetHeight)) }}
+            sheet={{ width: parseInt(sheetWidth), height: parseInt(sheetHeight) }}
             windowDivs={windowSheet}
           />
         </View>
       </View>
-    </ScrollView>
+    </View>
   );
 }

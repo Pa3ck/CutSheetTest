@@ -248,6 +248,7 @@ const processOverflownRectangles = (packedRectangles: Rectangle[][], sheet: Bin)
     })
   );
 
+  console.log('overflownRectangles', overflownRectangles);
   overflownRectangles.forEach((rect) => {
     // reprocess empty rectangles for every overflown rectangle that is relocated
     const emptyRectangles = getEmptyRectangles(processedRectangles, sheet);
@@ -255,6 +256,8 @@ const processOverflownRectangles = (packedRectangles: Rectangle[][], sheet: Bin)
     // processedRectangles.push([...emptyRectangles]);
 
     // get available empty rectangles that can fit the overflown rectangle
+    console.log('emptyRectangles', emptyRectangles);
+    console.log('rect', rect);
     const availableEmptyRectangles = emptyRectangles
       .filter(
         (rectangle) =>
